@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>SkillSwap | Peer-to-Peer Learning</title>
+	<style>
+		:root {
+			color-scheme: dark;
+			--bg: #0f172a;
+			--panel: #1e293b;
+			--border: #334155;
+			--text: #f8fafc;
+			--muted: #94a3b8;
+			--accent: #38bdf8;
+			--green: #4ade80;
+		}
+		* { box-sizing: border-box; margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+		body { background: var(--bg); color: var(--text); line-height: 1.6; padding: 0 16px; }
+		.container { max-width: 1200px; margin: auto; padding: 20px 0; }
+		nav, .panel, .match-card { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; }
+		nav { display: flex; justify-content: space-between; align-items: center; padding: 15px 24px; margin-bottom: 25px; }
+		.logo { color: var(--accent); font-size: 1.5rem; font-weight: 800; }
+		.token-balance { color: var(--green); border: 1px solid var(--green); background: #4ade801a; border-radius: 20px; padding: 6px 14px; font-size: .9rem; font-weight: 600; }
+		.hero { text-align: center; padding: 40px 20px; margin-bottom: 30px; border: 1px solid var(--border); border-radius: 12px; background: linear-gradient(135deg, #1e1b4b, var(--bg)); }
+		.hero h1 { font-size: clamp(1.7rem, 4vw, 2.3rem); margin-bottom: 10px; }
+		.hero p { color: var(--muted); max-width: 650px; margin: auto; }
+		.layout { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 25px; }
+		.panel { padding: 24px; margin-bottom: 20px; height: fit-content; }
+		.panel h2 { color: var(--accent); font-size: 1.15rem; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+		.subheading { color: var(--muted); font-size: .9rem; margin: 10px 0 4px; }
+		.tag { display: inline-block; margin: 4px; padding: 5px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); font-size: .85rem; }
+		.tag.seeking { border-color: var(--accent); }
+		.filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+		button { font: inherit; }
+		.filter { color: var(--text); background: var(--panel); border: 1px solid var(--border); padding: 8px 16px; border-radius: 8px; cursor: pointer; }
+		.filter:hover, .filter.active { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+		button:focus-visible { outline: 3px solid white; outline-offset: 3px; }
+		.feed { display: grid; gap: 15px; }
+		.match-card { display: flex; justify-content: space-between; align-items: center; gap: 18px; padding: 20px; }
+		.match-card h3 { margin-bottom: 6px; font-size: 1.2rem; }
+		.details { color: var(--muted); font-size: .95rem; }
+		.details strong { color: var(--accent); }
+		.action { flex: 0 0 auto; color: var(--bg); background: var(--accent); border: 0; border-radius: 8px; padding: 10px 18px; font-weight: 700; cursor: pointer; }
+		.action:hover { background: #0ea5e9; }
+		.action:disabled { color: var(--green); background: transparent; border: 1px solid var(--green); cursor: default; }
+		.pending-list { list-style: none; padding: 0; color: var(--muted); font-size: .9rem; }
+		.pending-item { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px dotted var(--border); }
+		.status { color: #fbbf24; font-weight: 600; }
+		.empty { padding: 26px; text-align: center; color: var(--muted); border: 1px dashed var(--border); border-radius: 12px; }
+		footer { text-align: center; margin-top: 55px; padding: 28px; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); }
+		@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+		@media (max-width: 560px) { nav { padding: 14px; } .match-card { align-items: flex-start; flex-direction: column; } }
+	</style>
+</head>
+<body>
+	<div class="container">
+		<nav aria-label="Main navigation">
+			<div class="logo">🔄 SkillSwap</div>
+			<span class="token-balance">🪙 5 Hours Available</span>
+		</nav>
+
+		<header class="hero">
+			<h1>Learn Anything Without Money</h1>
+			<p>Trade your knowledge, skills, and time directly with other developers globally. Teach one hour to earn one credit hour to learn.</p>
+		</header>
+
+		<div class="layout">
+			<aside>
+				<section class="panel">
+					<h2>My Teaching Profile</h2>
+					<p class="subheading">Skills you offer:</p>
+					<span class="tag">HTML5</span><span class="tag">CSS3</span><span class="tag">JavaScript ES6</span>
+					<p class="subheading">Skills you seek:</p>
+					<span class="tag seeking">Python</span><span class="tag seeking">UI/UX Design</span>
+				</section>
+				<section class="panel">
+					<h2>Active Requests</h2>
+					<ul class="pending-list" id="pendingList" aria-live="polite">
+						<li class="pending-item">No active trade requests yet.</li>
+					</ul>
+				</section>
+			</aside>
+
+			<main>
+				<div class="filters" aria-label="Filter peers by category">
+					<button class="filter active" aria-pressed="true" data-category="all">All Feeds</button>
+					<button class="filter" aria-pressed="false" data-category="tech">Development</button>
+					<button class="filter" aria-pressed="false" data-category="design">Creative Design</button>
+					<button class="filter" aria-pressed="false" data-category="lang">Languages</button>
+				</div>
+				<div class="feed" id="feed" aria-live="polite"></div>
+			</main>
+		</div>
+
+		<footer><p>&copy; 2026 SkillSwap Platform. Designed for open knowledge exchange.</p></footer>
+	</div>
+
+	<script>
+		const peers = [
+			{ id: 1, name: 'Ananya R.', category: 'tech', teaches: 'Python & Django', seeks: 'JavaScript ES6' },
+			{ id: 2, name: 'Vikram Shah', category: 'design', teaches: 'UI/UX Design & Figma', seeks: 'CSS3 layouts' },
+			{ id: 3, name: 'Sofia Chen', category: 'lang', teaches: 'Conversational Spanish', seeks: 'HTML & CSS basics' },
+			{ id: 4, name: 'Marcus Lee', category: 'tech', teaches: 'React & TypeScript', seeks: 'Python fundamentals' },
+			{ id: 5, name: 'Amara Okafor', category: 'design', teaches: 'Digital Illustration', seeks: 'JavaScript ES6' },
+			{ id: 6, name: 'Lucas Martin', category: 'lang', teaches: 'French Conversation', seeks: 'UI/UX Design' }
+		];
+		const requested = new Set();
+		const feed = document.getElementById('feed');
+		const pendingList = document.getElementById('pendingList');
+		let currentCategory = 'all';
+
+		function renderFeed() {
+			const visiblePeers = peers.filter(peer => currentCategory === 'all' || peer.category === currentCategory);
+			if (!visiblePeers.length) {
+				feed.innerHTML = '<p class="empty">No peers found in this category yet.</p>';
+				return;
+			}
+			feed.innerHTML = visiblePeers.map(peer => `
+				<article class="match-card">
+					<div>
+						<h3>${peer.name}</h3>
+						<p class="details">Teaches: <strong>${peer.teaches}</strong></p>
+						<p class="details">Wants to learn: <strong>${peer.seeks}</strong></p>
+					</div>
+					<button class="action" data-request="${peer.id}" ${requested.has(peer.id) ? 'disabled' : ''}>
+						${requested.has(peer.id) ? 'Request Sent' : 'Request Swap'}
+					</button>
+				</article>`).join('');
+		}
+
+		document.querySelector('.filters').addEventListener('click', event => {
+			const button = event.target.closest('button[data-category]');
+			if (!button) return;
+			currentCategory = button.dataset.category;
+			document.querySelectorAll('.filter').forEach(filter => {
+				const active = filter === button;
+				filter.classList.toggle('active', active);
+				filter.setAttribute('aria-pressed', String(active));
+			});
+			renderFeed();
+		});
+
+		feed.addEventListener('click', event => {
+			const button = event.target.closest('button[data-request]');
+			if (!button) return;
+			const peer = peers.find(item => item.id === Number(button.dataset.request));
+			if (!peer || requested.has(peer.id)) return;
+			requested.add(peer.id);
+			if (pendingList.textContent.includes('No active trade requests')) pendingList.replaceChildren();
+			const item = document.createElement('li');
+			item.className = 'pending-item';
+			const name = document.createElement('span');
+			name.textContent = peer.name;
+			const status = document.createElement('span');
+			status.className = 'status';
+			status.textContent = 'Pending';
+			item.append(name, status);
+			pendingList.appendChild(item);
+			renderFeed();
+		});
+
+		renderFeed();
+	</script>
+</body>
+</html>
